@@ -107,4 +107,6 @@ print("Number of days:", len(df))
 
 if len(df) > 0:
     print("Date range:", df["date"].min().date(), "→", df["date"].max().date())
-    print("PM2.5 min / max:", df["pm25"].min(), "/", df["pm25"].max())
+    print("PM2.5 min/max:", float(df["pm25"].min()), "/", float(df["pm25"].max()))
+    missing_days = df["date"].diff().dt.days.value_counts().to_dict()
+    print("Day gaps frequency (days between rows):", missing_days)
