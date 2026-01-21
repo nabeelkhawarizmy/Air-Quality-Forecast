@@ -1,1 +1,1 @@
-# Bogor Air Quality Short-term Forecast
+# Bogor Air Quality Short-term Forecast (day average)
