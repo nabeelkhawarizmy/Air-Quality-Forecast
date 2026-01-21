@@ -208,3 +208,8 @@ __marimo__/
 .DS_Store
 .env
 .env
+
+# Keep folder structure, but don't commit raw JSON dumps
+data/raw/*
+!data/raw/README.md
+
