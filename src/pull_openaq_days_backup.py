@@ -1,7 +1,6 @@
 import os
 import json
-from datetime import timedelta, datetime
-from zoneinfo import ZoneInfo
+from datetime import date, timedelta
 
 import requests
 import pandas as pd
@@ -23,10 +22,8 @@ BASE_URL = f"https://api.openaq.org/v3/sensors/{SENSOR_ID}/days"
 HEADERS = {"X-API-Key": API_KEY}
 
 # Only use completed days (avoid partial-day aggregates)
-SENSOR_TZ = ZoneInfo("Asia/Jakarta")
-today_local = datetime.now(SENSOR_TZ).date()
-DATE_TO = (today_local - timedelta(days=1)).isoformat()
-DATE_FROM = (today_local - timedelta(days=730)).isoformat()  # ~2 years
+DATE_TO = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+DATE_FROM = (date.today() - timedelta(days=730)).strftime("%Y-%m-%d")  # ~2 years
 
 
 # Fetch daily data (simple pagination loop)
@@ -104,37 +101,12 @@ out_path = "data/processed/daily_pm25.csv"
 df.to_csv(out_path, index=False)
 
 
-# Print + save "last observed day" metadata
+# Minimal sanity checks (printed)
 print("Saved processed data to:", out_path)
 print("Number of days:", len(df))
 
 if len(df) > 0:
-    first_day = df["date"].min().date().isoformat()
-    last_day = df["date"].max().date().isoformat()
-
-    print("Date range:", first_day, "→", last_day)
-    print("Last observed day (latest completed daily aggregate):", last_day)
-
-    # Optional: save metadata so UI/scripts can read it quickly
-    meta = {
-        "sensor_id": SENSOR_ID,
-        "requested_date_from": DATE_FROM,
-        "requested_date_to": DATE_TO,
-        "first_observed_date": first_day,
-        "last_observed_date": last_day,
-        "rows": int(len(df)),
-        "generated_at_local": datetime.now().astimezone().isoformat(),
-        "generated_at_local": datetime.now(SENSOR_TZ).isoformat(),
-        "sensor_timezone": "Asia/Jakarta",
-    }
-
-    meta_path = "data/processed/last_observed.json"
-    with open(meta_path, "w", encoding="utf-8") as f:
-        json.dump(meta, f, indent=2)
-
-    print("Saved metadata to:", meta_path)
-
+    print("Date range:", df["date"].min().date(), "→", df["date"].max().date())
+    print("PM2.5 min/max:", float(df["pm25"].min()), "/", float(df["pm25"].max()))
     missing_days = df["date"].diff().dt.days.value_counts().to_dict()
     print("Day gaps frequency (days between rows):", missing_days)
-else:
-    print("No PM2.5 daily rows returned. Check SENSOR_ID, API key, or date window.")

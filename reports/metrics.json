@@ -1,0 +1,22 @@
+{
+  "rows_total": 138,
+  "rows_train": 108,
+  "rows_test": 30,
+  "test_days": 30,
+  "date_train_min": "2025-09-05",
+  "date_train_max": "2025-12-21",
+  "date_test_min": "2025-12-22",
+  "date_test_max": "2026-01-20",
+  "baseline": {
+    "definition": "tomorrow \u2248 yesterday (uses lag_1)",
+    "mae": 13.720666666666666,
+    "rmse": 18.05920780839145,
+    "r2": -0.8911591508416048
+  },
+  "ridge": {
+    "alpha": 1.0,
+    "mae": 18.15626227790419,
+    "rmse": 22.44929385700254,
+    "r2": -1.9223757618082202
+  }
+}

@@ -1,0 +1,2 @@
+WHO Guidelines on PM2.5 Air Quality on a 24-hour average: 15 µg/m³ (from the 2021 WHO AQG).
+Trigger “Alert” if predicted_pm25 > 15
