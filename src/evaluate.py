@@ -188,7 +188,7 @@ bars_obs = ax.bar(obs_x, obs_y, width=0.8, label="Historical (aggregated daily b
 if future_dates:
     fc_x = mdates.date2num(pd.to_datetime(future_dates))
     fc_y = np.array(future_vals, dtype=float)
-    bars_fc = ax.bar(fc_x, fc_y, width=0.8, label="Forecast (incl. yesterday if not aggregated yet)", alpha=0.9)
+    bars_fc = ax.bar(fc_x, fc_y, width=0.8, label="Forecast (may also include yesterday's prediction if not provided by OpenAQ yet)", alpha=0.9)
 else:
     bars_fc = []
 
@@ -210,7 +210,7 @@ add_labels(bars_obs)
 if len(bars_fc) > 0:
     add_labels(bars_fc)
 
-ax.set_title("Bogor Recent PM2.5 Air Quality + Forecast (up to tomorrow)")
+ax.set_title("Bogor PM2.5 Air Quality Forecast (Today & Tomorrow)")
 ax.set_xlabel("Date")
 ax.set_ylabel("PM2.5 (µg/m³)")
 ax.legend()

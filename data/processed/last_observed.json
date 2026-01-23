@@ -3,8 +3,8 @@
   "requested_date_from": "2024-01-24",
   "requested_date_to": "2026-01-22",
   "first_observed_date": "2025-08-29",
-  "last_observed_date": "2026-01-21",
-  "rows": 146,
-  "generated_at_local": "2026-01-23T02:31:58.165823+07:00",
+  "last_observed_date": "2026-01-22",
+  "rows": 147,
+  "generated_at_local": "2026-01-23T15:46:07.833363+07:00",
   "sensor_timezone": "Asia/Jakarta"
 }
