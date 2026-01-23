@@ -6,3 +6,4 @@ scikit-learn
 joblib
 matplotlib
 streamlit
+altair==4.2.2
