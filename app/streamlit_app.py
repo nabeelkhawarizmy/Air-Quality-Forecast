@@ -180,9 +180,9 @@ with c2:
 # Simple guideline badge using tomorrow prediction (you can change to today)
 if pred_tomorrow is not None:
     if pred_tomorrow > WHO_GUIDELINE:
-        st.warning(f"**WARNING:** Forecast **above** the {WHO_GUIDELINE} µg/m³ WHO (World Health Organization) threshold")
+        st.warning(f"**WARNING:** Forecast **above** the {WHO_GUIDELINE} µg/m³ treshold from WHO (World Health Organization).")
     else:
-        st.success(f"Forecast **within** the ≤ {WHO_GUIDELINE} µg/m³ WHO (World Health Organization) threshold")
+        st.success(f"Forecast **within** the ≤ {WHO_GUIDELINE} µg/m³ treshold from WHO (World Health Organization).")
 
 # Chart: last 14 days actual + forecast points
 import matplotlib.dates as mdates  # make sure this import exists near the top
