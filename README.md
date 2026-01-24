@@ -14,8 +14,8 @@ This experimental project explores that question using publicly available data f
 - Support Bogor's policymakers to make data-driven decisions to improve health and the environment.
 
 ## :warning: Disclaimer
-This project is simply the author's initial exploration of building a machine learning (ML) model. The outputs are prone to bias and error. It is not intended to be advice.  
-For your assurance, please read the full disclaimer displayed on the [Bogor PM2.5 Air Quality Forecast](https://bogorairquality.streamlit.app) dashboard.
+This project is simply the author's initial exploration of building a machine learning (ML) model. The outputs are prone to bias and error, and does not update at real-time. It is not intended for any type of advice.  
+For further assurance, please read the full disclaimer displayed on the [Bogor PM2.5 Air Quality Forecast](https://bogorairquality.streamlit.app) dashboard.
 <br><br>
 ## Data source
 - OpenAQ PM2.5 sensor readings (aggregated daily)
