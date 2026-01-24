@@ -19,7 +19,8 @@ For your assurance, please read the full disclaimer displayed on the [Bogor PM2.
 <br><br>
 ## Data source
 - OpenAQ PM2.5 sensor readings (aggregated daily)
-[OpenAQ](http://OpenAQ.org) provides air quality data across the world using 1) reference-grade government monitors and 2) air sensors. Air quality is monitored real-time and the data is available in the OpenAQ Explorer as well as via API.  
+
+[OpenAQ](http://OpenAQ.org) provides air quality data across the world using air sensors and reference-grade government monitors. Air pollution is monitored real-time and accessible through the OpenAQ Explorer and retrievable via API.  
 In Indonesia, active and real-time sensors with plenty of historical data are very limited. One of the few air sensors that match this criteria is located in Bogor.
 > city: Bogor Selatan  
 location_id: 5599584  
