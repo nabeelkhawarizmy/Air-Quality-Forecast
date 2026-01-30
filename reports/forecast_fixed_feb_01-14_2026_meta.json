@@ -1,0 +1,6 @@
+{
+  "forecast_start": "2026-02-01",
+  "forecast_end": "2026-02-14",
+  "last_observed_date_in_dataset": "2026-01-29",
+  "notes": "Predictions are generated sequentially from the last observed completed day."
+}
