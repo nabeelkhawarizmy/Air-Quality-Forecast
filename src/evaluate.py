@@ -188,7 +188,7 @@ bars_obs = ax.bar(obs_x, obs_y, width=0.8, label="Historical (aggregated daily b
 if future_dates:
     fc_x = mdates.date2num(pd.to_datetime(future_dates))
     fc_y = np.array(future_vals, dtype=float)
-    bars_fc = ax.bar(fc_x, fc_y, width=0.8, label="Forecast (may also include yesterday's prediction if not provided by OpenAQ yet)", alpha=0.9)
+    bars_fc = ax.bar(fc_x, fc_y, width=0.8, label="Forecast (may also include yesterday's prediction if not aggregated by OpenAQ yet)", alpha=0.9)
 else:
     bars_fc = []
 

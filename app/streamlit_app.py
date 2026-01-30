@@ -229,7 +229,7 @@ if future_dates:
         fc_x,
         fc_y,
         width=0.8,
-        label="Forecast (may also include yesterday's prediction if not provided by OpenAQ yet)",
+        label="Forecast (may also include yesterday's prediction if not aggregated by OpenAQ yet)",
         alpha=0.85,
     )
 else:
@@ -293,7 +293,7 @@ plt.close()
 
 # Small note to prevent confusion
 st.caption(
-    f"Note: OpenAQ daily aggregates may lag. The latest daily aggregate in this dataset is on {last_observed_ts.date()}."
+    f"Note: OpenAQ daily aggregates may lag. The latest daily aggregate in this dataset is on {last_observed_ts.date()}. Forecasts are calculated using a ridge regression technique."
 )
 
 # Latest observed (completed day)

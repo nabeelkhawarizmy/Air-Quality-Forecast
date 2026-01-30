@@ -1,22 +1,22 @@
 {
-  "rows_total": 139,
-  "rows_train": 109,
+  "rows_total": 146,
+  "rows_train": 116,
   "rows_test": 30,
   "test_days": 30,
   "date_train_min": "2025-09-05",
-  "date_train_max": "2025-12-22",
-  "date_test_min": "2025-12-23",
-  "date_test_max": "2026-01-21",
+  "date_train_max": "2025-12-29",
+  "date_test_min": "2025-12-30",
+  "date_test_max": "2026-01-28",
   "baseline": {
     "definition": "tomorrow \u2248 yesterday (uses lag_1)",
-    "mae": 12.847333333333333,
-    "rmse": 17.16668245953966,
-    "r2": -1.007355890566111
+    "mae": 14.025333333333332,
+    "rmse": 17.91636979599011,
+    "r2": -0.6070292376645805
   },
   "ridge": {
     "alpha": 1.0,
-    "mae": 16.74489596535449,
-    "rmse": 20.85281805757718,
-    "r2": -1.9619732841942654
+    "mae": 21.36407382044603,
+    "rmse": 25.271148935570803,
+    "r2": -2.197228806627798
   }
 }
