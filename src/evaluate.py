@@ -116,14 +116,14 @@ def add_labels(bars):
 add_labels(bars_hist)
 add_labels(bars_fc)
 
-ax.set_title("Bogor PM2.5 Snapshot: Historical (Jan 18–31) + Forecast (Feb 1–14)")
+ax.set_title("Bogor PM2.5 Air Quality: Past 14 days & Forecast")
 ax.set_xlabel("Date")
-ax.set_ylabel("PM2.5 (µg/m³)")
+ax.set_ylabel("PM2.5 concentrations (µg/m³)")
 ax.legend()
 
 # Show every date tick (28 days total, still readable)
 ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))
-ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
+ax.xaxis.set_major_formatter(mdates.DateFormatter("%a, %d %b"))
 
 # Ensure x-limits cover full range neatly
 all_dates = list(df_plot["date"].dt.date.values)
