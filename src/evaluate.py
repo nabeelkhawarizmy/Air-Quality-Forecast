@@ -1,198 +1,105 @@
-import os
-import json
-from datetime import datetime, timedelta, date
-from zoneinfo import ZoneInfo
+from pathlib import Path
 
-import joblib
-import pandas as pd
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 
-# -----------------------------
-# Part A: Backtest plot (optional)
-# -----------------------------
-PRED_PATH = "reports/predictions.csv"
+# 1) File paths
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DAILY_CSV = REPO_ROOT / "data" / "processed" / "daily_pm25.csv"
+FORECAST_CSV = REPO_ROOT / "reports" / "forecast_fixed_feb_01-14_2026.csv"
+OUT_DIR = REPO_ROOT / "reports"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-df = pd.read_csv(PRED_PATH)
-df["date"] = pd.to_datetime(df["date"])
-df = df.sort_values("date").reset_index(drop=True)
+OUT_PNG = OUT_DIR / "forecast_plot.png"
+OUT_PLOT_DATA = OUT_DIR / "plot_data_snapshot.csv"
 
-# Backward-compatible baseline column detection
-if "Baseline (next day = yesterday)" in df.columns:
-    baseline_col = "Baseline (next day = yesterday)"
-elif "Baseline (next day = today)" in df.columns:
-    baseline_col = "Baseline (next day = today)"
-else:
-    raise ValueError("Baseline column not found in predictions.csv")
 
-# Plot actual vs predictions
-if os.path.exists(PRED_PATH):
-    df = pd.read_csv(PRED_PATH)
-    df["date"] = pd.to_datetime(df["date"])
-    df = df.sort_values("date").reset_index(drop=True)
+# 2) Fixed snapshot window
+HIST_START = pd.Timestamp("2026-01-18")
+HIST_END = pd.Timestamp("2026-01-31")
 
-    plt.figure(figsize=(12, 6))
-    plt.plot(df["date"], df["Predicted (next day)"], label="Predicted (next day)", linewidth=2)
-    plt.plot(df["date"], df["Actual (next day)"], label="Actual (next day)", linewidth=2)
-    plt.plot(df["date"], df[baseline_col], label=baseline_col, linewidth=2)
-    plt.title("Backtest: Next-day PM2.5 Prediction")
-    plt.xlabel("Date")
-    plt.ylabel("PM2.5 (µg/m³)")
-    plt.legend()
-    plt.xticks(rotation=45, ha="right")
-    plt.tight_layout()
+FC_START = pd.Timestamp("2026-02-01")
+FC_END = pd.Timestamp("2026-02-14")
 
-    os.makedirs("reports", exist_ok=True)
-    backtest_path = "reports/backtest_plot.png"
-    plt.savefig(backtest_path, dpi=150, bbox_inches="tight")
-    plt.close()
-    print("Saved backtest plot to:", backtest_path)
-else:
-    print("Backtest plot skipped (no reports/predictions.csv found).")
 
-# -----------------------------
-# Part B: 2-day forecast plot (today + tomorrow)
-# -----------------------------
-SENSOR_TZ = ZoneInfo("Asia/Jakarta")
-today_local = datetime.now(SENSOR_TZ).date()
-forecast_dates = [today_local, today_local + timedelta(days=1)]
+# 3) Load historical observed data
+if not DAILY_CSV.exists():
+    raise FileNotFoundError(f"Missing {DAILY_CSV}. Run src/pull_openaq_days.py first.")
 
-META_PATH = "data/processed/last_observed.json"
-DAILY_PATH = "data/processed/daily_pm25.csv"
-MODEL_PATH = "models/ridge_pm25.joblib"
+df_hist = pd.read_csv(DAILY_CSV)
+df_hist["date"] = pd.to_datetime(df_hist["date"])
+df_hist["pm25"] = pd.to_numeric(df_hist["pm25"], errors="coerce")
+df_hist = df_hist.dropna(subset=["date", "pm25"]).sort_values("date").reset_index(drop=True)
 
-for path in [META_PATH, DAILY_PATH, MODEL_PATH]:
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Missing {path}. Run src/pull_openaq_days.py and src/train.py first.")
+# Filter to Jan 18–31
+df_hist = df_hist[(df_hist["date"] >= HIST_START) & (df_hist["date"] <= HIST_END)].copy()
 
-with open(META_PATH, "r", encoding="utf-8") as f:
-    meta = json.load(f)
 
-last_observed_date = date.fromisoformat(meta["last_observed_date"])
-
-# Load observed daily PM2.5
-df_obs = pd.read_csv(DAILY_PATH)
-df_obs["date"] = pd.to_datetime(df_obs["date"]).dt.date
-df_obs["pm25"] = pd.to_numeric(df_obs["pm25"], errors="coerce")
-df_obs = df_obs.dropna(subset=["date", "pm25"]).sort_values("date").reset_index(drop=True)
-
-# Sanity check: metadata vs CSV
-csv_last = df_obs["date"].max()
-if csv_last != last_observed_date:
-    print(f"Warning: last_observed_date ({last_observed_date}) != CSV max date ({csv_last}). Using CSV max date.")
-    last_observed_date = csv_last
-
-# Load trained model
-model = joblib.load(MODEL_PATH)
-
-FEATURES = ["lag_1", "lag_7", "roll_mean_7", "day_of_week", "month"]
-
-# Build a date->value map seeded with actuals
-pm = {d: float(v) for d, v in zip(df_obs["date"], df_obs["pm25"])}
-
-def make_features(feature_date: date):
-    d1 = feature_date - timedelta(days=1)
-    d7 = feature_date - timedelta(days=7)
-
-    # Need lag_1 and lag_7 available
-    if d1 not in pm or d7 not in pm:
-        return None
-
-    # roll_mean_7 uses the previous 7 days: (t-7 ... t-1)
-    window = []
-    for k in range(1, 8):
-        d = feature_date - timedelta(days=k)
-        if d not in pm:
-            return None
-        window.append(pm[d])
-
-    return {
-        "lag_1": pm[d1],
-        "lag_7": pm[d7],
-        "roll_mean_7": sum(window) / 7.0,
-        "day_of_week": feature_date.weekday(),
-        "month": feature_date.month,
-    }
-
-# Recursive forecast until we have values for all forecast_dates
-max_needed = max(forecast_dates)
-
-feature_date = last_observed_date
-while feature_date + timedelta(days=1) <= max_needed:
-    target_date = feature_date + timedelta(days=1)
-
-    # If we already have an actual value for that date, don't overwrite it.
-    if target_date in pm:
-        feature_date = feature_date + timedelta(days=1)
-        continue
-
-    feats = make_features(feature_date)
-    if feats is None:
-        raise RuntimeError(
-            f"Not enough history to build features for {feature_date}. "
-            f"Need continuous values for the previous 7 days."
-        )
-
-    X = pd.DataFrame([feats])[FEATURES]
-    yhat = float(model.predict(X)[0])
-
-    pm[target_date] = yhat
-    feature_date = feature_date + timedelta(days=1)
-
-# Save forecast table (today + tomorrow)
-rows = []
-for d in forecast_dates:
-    rows.append(
-        {
-            "date": d.isoformat(),
-            "pm25_forecast": pm[d],
-            "steps_ahead_from_last_observed": int((d - last_observed_date).days),
-            "last_observed_date": last_observed_date.isoformat(),
-            "generated_at_local": datetime.now(SENSOR_TZ).isoformat(),
-        }
+# 4) Load fixed forecast data (Feb 01–14)
+if not FORECAST_CSV.exists():
+    raise FileNotFoundError(
+        f"Missing {FORECAST_CSV}. Run src/forecast_fixed_feb_01-14_2026.py first."
     )
 
-df_fc = pd.DataFrame(rows)
-os.makedirs("reports", exist_ok=True)
-out_csv = "reports/forecast_next_2_days.csv"
-df_fc.to_csv(out_csv, index=False)
-print("Saved forecast table to:", out_csv)
+df_fc = pd.read_csv(FORECAST_CSV)
+df_fc["date"] = pd.to_datetime(df_fc["date"])
 
-# Plot: last 14 days observed + forecast line up to tomorrow
-history_days = 14
-cutoff = today_local - timedelta(days=history_days)
+# Accept either column name (old vs new)
+if "predicted_pm25" in df_fc.columns:
+    pred_col = "predicted_pm25"
+elif "pm25_pred" in df_fc.columns:
+    pred_col = "pm25_pred"
+else:
+    raise KeyError(f"Forecast CSV missing prediction column. Found columns: {list(df_fc.columns)}")
 
-df_plot = df_obs[df_obs["date"] >= cutoff].copy()
-df_plot["date"] = pd.to_datetime(df_plot["date"])
+df_fc[pred_col] = pd.to_numeric(df_fc[pred_col], errors="coerce")
+df_fc = df_fc.dropna(subset=["date", pred_col]).sort_values("date").reset_index(drop=True)
 
-future_dates = []
-future_vals = []
-d = last_observed_date + timedelta(days=1)
-while d <= max_needed:
-    future_dates.append(d)
-    future_vals.append(pm[d])
-    d += timedelta(days=1)
+# Filter to Feb 1–14 (safety)
+df_fc = df_fc[(df_fc["date"] >= FC_START) & (df_fc["date"] <= FC_END)].copy()
 
 
-# ---- BAR CHART ----
+# 5) Combine and save plot data (nice for debugging + transparency)
+df_hist_plot = df_hist[["date", "pm25"]].copy()
+df_hist_plot["series"] = "Historical (OpenAQ daily)"
+
+df_fc_plot = df_fc[["date", pred_col]].copy()
+df_fc_plot.rename(columns={pred_col: "pm25"}, inplace=True)
+df_fc_plot["series"] = "Forecast (Fixed Feb 01–14)"
+
+df_plot = pd.concat([df_hist_plot, df_fc_plot], ignore_index=True)
+df_plot = df_plot.sort_values("date").reset_index(drop=True)
+df_plot.to_csv(OUT_PLOT_DATA, index=False)
+
+
+# 6) Bar chart
 fig, ax = plt.subplots(figsize=(14, 6))
 
-# Observed bars
-obs_x = mdates.date2num(pd.to_datetime(df_plot["date"]))
-obs_y = df_plot["pm25"].astype(float).values
-bars_obs = ax.bar(obs_x, obs_y, width=0.8, label="Historical (aggregated daily by OpenAQ)")
+# Historical bars
+hist_x = mdates.date2num(df_hist_plot["date"])
+hist_y = df_hist_plot["pm25"].astype(float).values
+bars_hist = ax.bar(
+    hist_x,
+    hist_y,
+    width=0.8,
+    label="Historical (OpenAQ daily aggregates)",
+)
 
-# Forecast bars (slightly shifted so it doesn't fully overlap if dates collide)
-if future_dates:
-    fc_x = mdates.date2num(pd.to_datetime(future_dates))
-    fc_y = np.array(future_vals, dtype=float)
-    bars_fc = ax.bar(fc_x, fc_y, width=0.8, label="Forecast (may also include yesterday's prediction if not aggregated by OpenAQ yet)", alpha=0.9)
-else:
-    bars_fc = []
+# Forecast bars
+fc_x = mdates.date2num(df_fc_plot["date"])
+fc_y = df_fc_plot["pm25"].astype(float).values
+bars_fc = ax.bar(
+    fc_x,
+    fc_y,
+    width=0.8,
+    alpha=0.85,
+    label="Forecast (February 01–14, 2026)",
+)
 
-# Put number on each bar
+# Put numbers on top of bars (small text)
 def add_labels(bars):
     for b in bars:
         h = b.get_height()
@@ -206,32 +113,42 @@ def add_labels(bars):
             textcoords="offset points",
         )
 
-add_labels(bars_obs)
-if len(bars_fc) > 0:
-    add_labels(bars_fc)
+add_labels(bars_hist)
+add_labels(bars_fc)
 
-ax.set_title("Bogor PM2.5 Air Quality Forecast (Today & Tomorrow)")
+ax.set_title("Bogor PM2.5 Snapshot: Historical (Jan 18–31) + Forecast (Feb 1–14)")
 ax.set_xlabel("Date")
 ax.set_ylabel("PM2.5 (µg/m³)")
 ax.legend()
 
-# Show every date on the x-axis
+# Show every date tick (28 days total, still readable)
 ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))
 ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
 
-# Ensure x-limits cover the full range neatly
-all_dates = list(pd.to_datetime(df_plot["date"]).dt.date.values) + future_dates
+# Ensure x-limits cover full range neatly
+all_dates = list(df_plot["date"].dt.date.values)
 xmin = min(all_dates)
 xmax = max(all_dates)
-ax.set_xlim(mdates.date2num(pd.to_datetime(xmin)) - 1, mdates.date2num(pd.to_datetime(xmax)) + 1)
+ax.set_xlim(
+    mdates.date2num(pd.to_datetime(xmin)) - 1,
+    mdates.date2num(pd.to_datetime(xmax)) + 1,
+)
 
 plt.xticks(rotation=45, ha="right")
 plt.tight_layout()
 
-forecast_plot_path = "reports/forecast_plot.png"
-plt.savefig(forecast_plot_path, dpi=150, bbox_inches="tight")
+plt.savefig(OUT_PNG, dpi=150, bbox_inches="tight")
 plt.close()
 
-print("Saved forecast plot to:", forecast_plot_path)
-print("Last observed day:", last_observed_date.isoformat())
-print("Forecasted days:", ", ".join([d.isoformat() for d in forecast_dates]))
+print("Saved plot to:", OUT_PNG)
+print("Saved plot data to:", OUT_PLOT_DATA)
+
+# Optional quick summary in terminal
+if len(df_hist_plot) > 0:
+    print("Historical rows:", len(df_hist_plot), "| Date range:",
+          df_hist_plot["date"].min().date(), "→", df_hist_plot["date"].max().date())
+else:
+    print("Historical rows: 0 (no data found in Jan 18–31 window)")
+
+print("Forecast rows:", len(df_fc_plot), "| Date range:",
+      df_fc_plot["date"].min().date(), "→", df_fc_plot["date"].max().date())

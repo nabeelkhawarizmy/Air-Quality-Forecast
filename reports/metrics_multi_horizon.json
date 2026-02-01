@@ -1,0 +1,171 @@
+{
+  "alpha": 1.0,
+  "test_days": 30,
+  "feature_cols": [
+    "lag_1",
+    "lag_2",
+    "lag_3",
+    "lag_7",
+    "lag_14",
+    "roll_mean_7",
+    "roll_mean_14",
+    "roll_std_7",
+    "dow"
+  ],
+  "by_horizon": {
+    "h01": {
+      "rows_train": 110,
+      "rows_test": 29,
+      "date_train_min": "2025-09-12",
+      "date_train_max": "2025-12-30",
+      "date_test_min": "2025-12-31",
+      "date_test_max": "2026-01-28",
+      "mae": 13.086807501346701,
+      "rmse": 15.367527269200501,
+      "r2": -0.18983661781954986
+    },
+    "h02": {
+      "rows_train": 110,
+      "rows_test": 28,
+      "date_train_min": "2025-09-12",
+      "date_train_max": "2025-12-30",
+      "date_test_min": "2025-12-31",
+      "date_test_max": "2026-01-27",
+      "mae": 14.511026638182429,
+      "rmse": 16.59939404899745,
+      "r2": -0.3532098412648881
+    },
+    "h03": {
+      "rows_train": 110,
+      "rows_test": 27,
+      "date_train_min": "2025-09-12",
+      "date_train_max": "2025-12-30",
+      "date_test_min": "2025-12-31",
+      "date_test_max": "2026-01-26",
+      "mae": 14.13445501781218,
+      "rmse": 17.649934663194763,
+      "r2": -0.523724856574078
+    },
+    "h04": {
+      "rows_train": 110,
+      "rows_test": 26,
+      "date_train_min": "2025-09-12",
+      "date_train_max": "2025-12-30",
+      "date_test_min": "2025-12-31",
+      "date_test_max": "2026-01-25",
+      "mae": 13.852312565774195,
+      "rmse": 16.134621913622258,
+      "r2": -0.2961458408188675
+    },
+    "h05": {
+      "rows_train": 110,
+      "rows_test": 25,
+      "date_train_min": "2025-09-12",
+      "date_train_max": "2025-12-30",
+      "date_test_min": "2025-12-31",
+      "date_test_max": "2026-01-24",
+      "mae": 13.878840242159706,
+      "rmse": 16.16596594824317,
+      "r2": -0.2588270057179176
+    },
+    "h06": {
+      "rows_train": 110,
+      "rows_test": 24,
+      "date_train_min": "2025-09-12",
+      "date_train_max": "2025-12-30",
+      "date_test_min": "2025-12-31",
+      "date_test_max": "2026-01-23",
+      "mae": 13.856408497400993,
+      "rmse": 16.139132824197212,
+      "r2": -0.3361327685951485
+    },
+    "h07": {
+      "rows_train": 110,
+      "rows_test": 23,
+      "date_train_min": "2025-09-12",
+      "date_train_max": "2025-12-30",
+      "date_test_min": "2025-12-31",
+      "date_test_max": "2026-01-22",
+      "mae": 14.723086329914729,
+      "rmse": 16.831258601304842,
+      "r2": -0.4681076346791113
+    },
+    "h08": {
+      "rows_train": 110,
+      "rows_test": 22,
+      "date_train_min": "2025-09-12",
+      "date_train_max": "2025-12-30",
+      "date_test_min": "2025-12-31",
+      "date_test_max": "2026-01-21",
+      "mae": 14.725535102180253,
+      "rmse": 16.60732144952928,
+      "r2": -0.547487562102098
+    },
+    "h09": {
+      "rows_train": 110,
+      "rows_test": 21,
+      "date_train_min": "2025-09-12",
+      "date_train_max": "2025-12-30",
+      "date_test_min": "2025-12-31",
+      "date_test_max": "2026-01-20",
+      "mae": 12.72422949378957,
+      "rmse": 14.643093396423822,
+      "r2": -0.17235933412667248
+    },
+    "h10": {
+      "rows_train": 110,
+      "rows_test": 20,
+      "date_train_min": "2025-09-12",
+      "date_train_max": "2025-12-30",
+      "date_test_min": "2025-12-31",
+      "date_test_max": "2026-01-19",
+      "mae": 12.364959926470652,
+      "rmse": 14.75747073853098,
+      "r2": -0.21238031950044634
+    },
+    "h11": {
+      "rows_train": 110,
+      "rows_test": 19,
+      "date_train_min": "2025-09-12",
+      "date_train_max": "2025-12-30",
+      "date_test_min": "2025-12-31",
+      "date_test_max": "2026-01-18",
+      "mae": 12.968491508178175,
+      "rmse": 15.15306780974744,
+      "r2": -0.28318914281021246
+    },
+    "h12": {
+      "rows_train": 110,
+      "rows_test": 18,
+      "date_train_min": "2025-09-12",
+      "date_train_max": "2025-12-30",
+      "date_test_min": "2025-12-31",
+      "date_test_max": "2026-01-17",
+      "mae": 13.064172945249993,
+      "rmse": 15.329750983317671,
+      "r2": -0.37914230475578936
+    },
+    "h13": {
+      "rows_train": 110,
+      "rows_test": 17,
+      "date_train_min": "2025-09-12",
+      "date_train_max": "2025-12-30",
+      "date_test_min": "2025-12-31",
+      "date_test_max": "2026-01-16",
+      "mae": 14.087022681890765,
+      "rmse": 15.365641504329046,
+      "r2": -0.3156482085413972
+    },
+    "h14": {
+      "rows_train": 110,
+      "rows_test": 16,
+      "date_train_min": "2025-09-12",
+      "date_train_max": "2025-12-30",
+      "date_test_min": "2025-12-31",
+      "date_test_max": "2026-01-15",
+      "mae": 13.71701536578508,
+      "rmse": 15.421107005340312,
+      "r2": -0.3861081170768279
+    }
+  }
+}
