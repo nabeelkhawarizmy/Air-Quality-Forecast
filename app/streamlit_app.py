@@ -144,7 +144,7 @@ st.subheader("Forecast for 01-14 February 2026")
 # Prefer showing the pre-rendered plot (consistent with your scripts)
 if PLOT_PNG.exists():
     st.image(str(PLOT_PNG), caption="Forecasts are computed using a ridge regression model.\n\n"
-    "Data source: OpenAQ daily aggregates.", use_container_width=True)
+    "Data source: OpenAQ daily aggregates.",)
     st.warning(f"**CAUTION:** WHO recommended daily PM2.5 limit is **{WHO_GUIDELINE} µg/m³.**\n\n"
     f"To prevent health risks, reduce time spent outside if it exceeds this limit.")
 else:
