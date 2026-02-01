@@ -146,23 +146,25 @@ if PLOT_PNG.exists():
     st.image(str(PLOT_PNG), caption="Forecasts are computed using a ridge regression model.\n\n"
     "Data source: OpenAQ daily aggregates.",)
     st.warning(f"**CAUTION:** WHO recommended daily PM2.5 limit is **{WHO_GUIDELINE} µg/m³.**\n\n"
-    f"To prevent health risks, reduce time spent outside if it exceeds this limit.")
+    f"To prevent health risks, reduce time spent outside if it exceeds this limit. We recommend to read the full disclaimer below.")
 else:
     fig = make_bar_chart(df_hist, df_fc)
     st.pyplot(fig)
 st.markdown("")
 
+# Disclaimers
+st.markdown("---")
 meta = load_meta()
 if meta:
     st.info(
-        f"***NOTE:** This Streamlit app's **last GitHub commit was on 01 February 2026**.*\n\n"  
-        f"*However, the webpage may auto-update if this app falls to sleep and is woken up by anyone with the link. This is due to Streamlit's Free Community Cloud policy that puts the app to sleep after 12 hours of no traffic.*"
+        f"**NOTE:** This Streamlit app's **last GitHub commit was on 01 February 2026**.\n\n"  
+        f"However, the webpage may update itself if the app falls to sleep and then woken up by anyone. This is due to Streamlit's Free Community Cloud policy that puts the app to sleep after 12 hours of no traffic."
     )
 else:
     st.info("Snapshot mode (static). Metadata file not found, using frozen CSVs only.")
 
-# Disclaimers
 st.markdown("---")
+
 st.subheader("Disclaimers (for transparency)")
 st.markdown(
     """
